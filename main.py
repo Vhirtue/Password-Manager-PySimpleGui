@@ -1,7 +1,10 @@
 import PySimpleGUI as sg
 from database import *
+import time
 
 sg.set_options(font=("Courier", 12))
+
+records = get_records()
 
 #check if inputs are empty
 def checkMissingInput(lst):
@@ -12,24 +15,32 @@ def checkMissingInput(lst):
 
 #create window to show records
 def createShowRecordsWindow():
+    toprows = ["Id","Url","Username","Password"]
+
     showRecordsLayout = [
         [sg.Text("Records")],
-       # [sg.Table(values=)]
-        [sg.Button("Select",key="select-record",expand_x=True),sg.Button("Close",key="close-show-records",expand_x=True)]
+        [sg.Table(key='records-table',values=records, headings=toprows, 
+                  expand_x=True,
+                  expand_y=True,
+                  justification="center",
+                  enable_click_events=True
+                  ),],
+        [sg.Button("Select",key="select-record",expand_x=True,enable_events=True),sg.Button("Close",key="close-show-records",expand_x=True,enable_events=True)]
     ]
 
-    window = sg.Window("Records", showRecordsLayout)
-
+    window = sg.Window("Records", showRecordsLayout, size=(800,400))
     while True:
-        event, values = window.read()
+        event, values = window.read(timeout=1000)
 
         #events
-        if event == sg.WIN_CLOSED:
+        if event =="close-show-records" or event == sg.WIN_CLOSED:
             break
 
-#add record to records window
-def addTableRecord():
-    pass
+        elif event == "select-record":
+            pass
+        
+        window['records-table'].update(values=get_records())
+
 #create window to add records
 def main():
     addRecordsLayout = [
@@ -57,13 +68,11 @@ def main():
 
         elif event == 'add-records':
             inputElementValues = list(values.values())
-
             try:
                 if checkMissingInput(inputElementValues) == True:
                     sg.popup("Missing input values...")
                 else:
-                    addDbRecord(inputElementValues[0], inputElementValues[1], inputElementValues[3])
-                    addTableRecord()
+                    addDbRecord(inputElementValues[0], inputElementValues[1], inputElementValues[2])
                     sg.popup("Record succesfully added...")
 
             except ValueError:
