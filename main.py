@@ -23,7 +23,7 @@ def createShowRecordsWindow():
                   expand_x=True,
                   expand_y=True,
                   justification="center",
-                  enable_click_events=True
+                  enable_click_events=True 
                   ),],
         [sg.Button("Select",key="select-record",expand_x=True,enable_events=True),sg.Button("Close",key="close-show-records",expand_x=True,enable_events=True)]
     ]
@@ -39,7 +39,7 @@ def createShowRecordsWindow():
         elif event == "select-record":
             pass
         
-        window['records-table'].update(values=get_records())
+        window['records-table'].update(values=get_records()) #update records table to display new added records
 
 #create window to add records
 def main():

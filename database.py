@@ -35,6 +35,6 @@ def get_records():
     return records
 
 print(get_records())
-#deleteDbRecord(1)
+#deleteDbRecord(2)
 
 createRecordsTable()
