@@ -25,8 +25,11 @@ def deleteDbRecord(id):
     conn.commit()
     conn.close()
 
+def editDbRecord(id):
+    pass
+
 #return list of records in database and id number
-def get_records():
+def getRecords():
     conn = sqlite3.connect("records.db")
     cursor = conn.cursor()
     cursor.execute("SELECT rowid, * FROM records")
@@ -34,7 +37,17 @@ def get_records():
     conn.close()
     return records
 
-print(get_records())
-#deleteDbRecord(2)
+#return record from table based on id
+def selectRecord(id):
+    conn = sqlite3.connect("records.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT url, username, password FROM records WHERE rowid = ?", (id,))
+    record = cursor.fetchone()
+    conn.close()
+    return record
+
+#print(getRecords())
+#print(selectRecord(3))
+#deleteDbRecord(3)
 
 createRecordsTable()
