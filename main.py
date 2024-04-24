@@ -5,7 +5,6 @@ sg.set_options(font=("Courier", 12))
 
 #get all added records from database
 records = getRecords()
-print(records)
 
 #check if inputs are empty
 def checkMissingInput(lst):
@@ -33,40 +32,43 @@ def main():
     showRecordsLayout = [
         [sg.Push(),sg.Text("Records"),sg.Push()],
         [sg.Push(),sg.Table(key='records-table',values=records, headings=toprows, 
-                  expand_x=True,
-                  expand_y=True,
+                  #expand_x=True,
+                  #expand_y=True,
                   justification="center",
-                  auto_size_columns=True,
+                  col_widths = [5, 25, 25, 25],
+                  auto_size_columns=False,
                   enable_click_events=True 
                   ),sg.Push()],
         [sg.Button("Select",key="select-records",expand_x=True,enable_events=True),
-         sg.Button("Exit",key="exit-show-records",expand_x=True,enable_events=True)]
+         sg.Button("Return",key="exit-show-records",expand_x=True,enable_events=True)]
     ]
 
     #third layout, for viewing selected layout from table
     showSelectedRecordLayout = [
-        #[sg.Text(f"Record {selectRecordId}")]
-        [sg.Text("Url: ")],
-        [sg.Text("Username: ")],
-        [sg.Text("Password: ")],
+        [sg.Push(),sg.Text("...", key="selected-record-id"),sg.Push()],
+        [sg.Text("Url: "), sg.Push(), sg.Text("...", key="selected-record-url")],
+        [sg.Text("Username: "), sg.Push(), sg.Text("...", key="selected-record-username")],
+        [sg.Text("Password: "), sg.Push(), sg.Text("...", key="selected-record-password")],
 
         [sg.Button("Delete", expand_x=True, key="delete-record-button"),
          sg.Button("Return", expand_x=True, key="exit-selected-record")]
     ]
 
-    rootLayout = [[sg.Column(addRecordsLayout, key="column-1", visible=True)],
-                  [sg.Column(showRecordsLayout, key="column-2", visible=False)],
-                  [sg.Column(showSelectedRecordLayout, key="column-3", visible=False)]]
+    rootLayout = [
+        [sg.Column(addRecordsLayout, key="column-1", visible=True, expand_x=True, expand_y=True),
+         sg.Column(showRecordsLayout, key="column-2", visible=False, expand_x=True, expand_y=True),
+         sg.Column(showSelectedRecordLayout, key="column-3", visible=False, expand_x=True, expand_y=True)],
+    ]
 
     window = sg.Window("Password Manager", rootLayout)
     while True:
         event, values = window.read()
-    
+
         #events
         if event == sg.WIN_CLOSED:
-            print(event)
-        
             break
+
+        #clear all input fields
         elif event == 'clear':
             window['input-url'].update('')
             window['input-username'].update('')
@@ -83,24 +85,38 @@ def main():
 
             except ValueError:
                 print("ValueError")
-        
+
+        #open layout of records table
         elif event == 'show-records':
             window["column-1"].update(visible=False)
             window["column-2"].update(visible=True)
             window['records-table'].update(values=getRecords()) #update records table to display new added records based on whats in database table
 
+        #return to add records layout
         if event == 'exit-show-records':
             window["column-1"].update(visible=True)
             window["column-2"].update(visible=False)
 
+        #open layout of selected records
         elif event == 'select-records':
+            selected_row = values['records-table'][0]#Get the index of the selected row
+            selected_row_data = records[selected_row]#Get the data of the selected row
+            print(f"Selected Row Data: {selected_row_data}")
+
             window["column-2"].update(visible=False)
             window["column-3"].update(visible=True)
-            print(values['records-table'])
-        
+
+            #update all text elements in selected record layout to display selected row data
+            window["selected-record-id"].update(f"Record Id: {selected_row_data[0]}")
+            window["selected-record-url"].update(f"{selected_row_data[1]}")
+            window["selected-record-username"].update(f"{selected_row_data[2]}")
+            window["selected-record-password"].update(f"{selected_row_data[3]}")
+
+        #return to records table layout
         elif event == 'exit-selected-record':
             window["column-2"].update(visible=True)
             window["column-3"].update(visible=False)
+
     window.close()
 
 if __name__ == "__main__":
