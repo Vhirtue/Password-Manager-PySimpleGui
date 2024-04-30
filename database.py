@@ -48,6 +48,6 @@ def selectRecord(id):
 
 #print(getRecords())
 #print(selectRecord(3))
-#deleteDbRecord(3)
+deleteDbRecord(3)
 
 createRecordsTable()

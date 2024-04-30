@@ -46,11 +46,16 @@ def main():
     #third layout, for viewing selected layout from table
     showSelectedRecordLayout = [
         [sg.Push(),sg.Text("...", key="selected-record-id"),sg.Push()],
-        [sg.Text("Url: "), sg.Push(), sg.Text("...", key="selected-record-url")],
-        [sg.Text("Username: "), sg.Push(), sg.Text("...", key="selected-record-username")],
-        [sg.Text("Password: "), sg.Push(), sg.Text("...", key="selected-record-password")],
+        [sg.Text("Url: "), sg.Push(), sg.Text("...", key="selected-record-url"), sg.Button("Edit", key="edit-selected-record-1")],
+        [sg.Text("Username: "), sg.Push(), sg.Text("...", key="selected-record-username"), sg.Button("Edit", key="edit-selected-record-2")],
+        [sg.Text("Password: "), sg.Push(), sg.Text("...", key="selected-record-password"), sg.Button("Edit", key="edit-selected-record-3")],
+        
+        [sg.Input(key="input-selected-record-1", visible=False),
+         sg.Input(key="input-selected-record-2", visible=False),
+         sg.Input(key="input-selected-record-3", visible=True),
+         sg.Button("Edit", key="confirm-edit")],
 
-        [sg.Button("Delete", expand_x=True, key="delete-record-button"),
+        [sg.Button("Delete", expand_x=True, key="delete-record-button", button_color=("white","darkred")),
          sg.Button("Return", expand_x=True, key="exit-selected-record")]
     ]
 
@@ -81,6 +86,7 @@ def main():
                     sg.popup("Missing input values...")
                 else:
                     addDbRecord(inputElementValues[0], inputElementValues[1], inputElementValues[2]) #add list of input values to database table
+                 
                     sg.popup("Record succesfully added...")
 
             except ValueError:
@@ -93,30 +99,40 @@ def main():
             window['records-table'].update(values=getRecords()) #update records table to display new added records based on whats in database table
 
         #return to add records layout
-        if event == 'exit-show-records':
+        elif event == 'exit-show-records':
             window["column-1"].update(visible=True)
             window["column-2"].update(visible=False)
 
         #open layout of selected records
         elif event == 'select-records':
-            selected_row = values['records-table'][0]#Get the index of the selected row
-            selected_row_data = records[selected_row]#Get the data of the selected row
-            print(f"Selected Row Data: {selected_row_data}")
+            if values['records-table']:
+                selected_row = values['records-table'][0]  # Get the index of the selected row
+                selected_row_data = records[selected_row]  # Get the data of the selected row
 
-            window["column-2"].update(visible=False)
-            window["column-3"].update(visible=True)
+                window["column-2"].update(visible=False)
+                window["column-3"].update(visible=True)
 
-            #update all text elements in selected record layout to display selected row data
-            window["selected-record-id"].update(f"Record Id: {selected_row_data[0]}")
-            window["selected-record-url"].update(f"{selected_row_data[1]}")
-            window["selected-record-username"].update(f"{selected_row_data[2]}")
-            window["selected-record-password"].update(f"{selected_row_data[3]}")
+                # Update all text elements in selected record layout to display selected row data
+                window["selected-record-id"].update(f"Record Id: {selected_row_data[0]}")
+                window["selected-record-url"].update(f"{selected_row_data[1]}")
+                window["selected-record-username"].update(f"{selected_row_data[2]}")
+                window["selected-record-password"].update(f"{selected_row_data[3]}")
+            else:
+                sg.popup("No record selected...")
 
-        #return to records table layout
+
+                #return to records table layout
         elif event == 'exit-selected-record':
+            window['records-table'].update(values=getRecords())
             window["column-2"].update(visible=True)
             window["column-3"].update(visible=False)
 
+        #delete selected record
+        elif event == 'delete-record-button':
+            deleteDbRecord(selected_row_data[0])
+            sg.popup("Record succesfully deleted...")
+            window['records-table'].update(values=getRecords())
+    
     window.close()
 
 if __name__ == "__main__":
